@@ -17,11 +17,9 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.301
-    - name: move to src folder
-      run: cd src
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore ./src/StandardStorageLibrary.sln
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build ./src/StandardStorageLibrary.sln --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test  ./src/StandardStorageLibrary.sln --no-restore --verbosity normal
