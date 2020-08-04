@@ -21,5 +21,5 @@ jobs:
       run: dotnet restore ./src/StandardStorageLibrary.sln
     - name: Build
       run: dotnet build ./src/StandardStorageLibrary.sln --configuration Release --no-restore
-    - name: Test
-      run: dotnet test  ./src/StandardStorageLibrary.sln --no-restore --verbosity normal
+#     - name: Test
+#       run: dotnet test  ./src/StandardStorageLibrary.sln --no-restore --verbosity normal
