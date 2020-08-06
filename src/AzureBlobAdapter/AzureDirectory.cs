@@ -4,16 +4,26 @@ using System.Diagnostics;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Security.AccessControl;
 using System.Text;
+using Azure.Storage.Files.DataLake;
+using System.Threading.Tasks;
+using Azure.Storage.Files.DataLake.Models;
+using System.Runtime.InteropServices;
+using System.Linq;
+
+using SearchOption = System.IO.SearchOption;
+using System.Threading;
 
 namespace Azure.BlobAdapter
 {
-    public class AzureDirectory : IDirectory
+    /// <summary>
+    /// refer https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet
+    /// </summary>
+    public partial class AzureDirectory : IDirectory
     {
-        AzureBlobAdapter _azureBlobAdapter;
+        readonly AzureBlobAdapter _azureBlobAdapter;
 
         public IFileSystem FileSystem
         {
@@ -30,232 +40,169 @@ namespace Azure.BlobAdapter
 
         #region Helper methods
 
-        protected virtual Pageable<BlobItem> GetBlobs(string containerPath)
+        protected DataLakeFileSystemClient GetFileSystemClient(string fileSystemName)
         {
-            // Create the container and return a container client object
-            //BlobContainerClient containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
-            BlobContainerClient containerClient = _azureBlobAdapter.BlobServiceClientObject.GetBlobContainerClient(containerPath);
-
-            Debug.WriteLine("Listing blobs...");
-            var blobs = containerClient.GetBlobs();
-            return blobs;
+            //public BlobContainerClient BlobContainerClientObject { get; private set; }
+            var fileSystemClient = _azureBlobAdapter.DataLakeServiceClientObject.GetFileSystemClient(fileSystemName);
+            return fileSystemClient;
         }
 
+        public DataLakeDirectoryClient GetDirectoryClient(string directoryFullPath)
+        {
+            var Names = _azureBlobAdapter.ExtractContainerBlobPortions(directoryFullPath);
+            var fileSystemName = _azureBlobAdapter.ExtractContainerName(Names.Item1);
+
+            var fileSystemClient = GetFileSystemClient(fileSystemName);
+            DataLakeDirectoryClient directoryClient =
+                fileSystemClient.GetDirectoryClient(Names.Item2);
+
+            return directoryClient;
+        }
+
+        public virtual string NormalizeToBlobPath(string directoryPath)
+        {
+            //change the directory separators and directory name cannot contain trailing slash
+            var blobDirectoryPath = directoryPath.Replace(_azureBlobAdapter.DirectorySeparator, _azureBlobAdapter.BlobPathSeparator);
+            blobDirectoryPath = blobDirectoryPath.TrimEnd(_azureBlobAdapter.DirectorySeparator.Take(1).First());
+            return blobDirectoryPath;
+        }
+
+        public virtual IEnumerable<string> InternalEnumerate(string path, string searchPattern, SearchOption searchOption, bool Directories, bool Files)
+        {
+            if (!string.IsNullOrEmpty(searchPattern))
+                throw new NotImplementedException();
+
+            var Names = _azureBlobAdapter.ExtractContainerBlobPortions(path);
+            var rootPath = Names.Item1;
+            var fileSystemName = _azureBlobAdapter.ExtractContainerName(rootPath);
+
+            var fileSystemClient = GetFileSystemClient(fileSystemName);
+
+            bool isRecursive = searchOption == SearchOption.AllDirectories;
+            var directoryName = NormalizeToBlobPath(Names.Item2);
+
+            IEnumerable<PathItem> names = fileSystemClient.GetPaths(directoryName, isRecursive).ToArray();
+            if (Directories && !Files)
+                names = names.Where(pathItem => pathItem.IsDirectory ?? false);
+            else if (!Directories && Files)
+                names = names.Where(pathItem => !(pathItem.IsDirectory ?? false));
+            //if both flag set or not set return all names
+
+            return names.Select(pathItem =>
+                    _azureBlobAdapter.Path.Combine(rootPath, pathItem.Name.Replace(
+                        _azureBlobAdapter.BlobPathSeparator, _azureBlobAdapter.DirectorySeparator))
+                );
+        }
         #endregion
 
-        public IDirectoryInfo CreateDirectory(string path)
+        public IDirectoryInfo CreateDirectory(string directoryFullPath)
         {
-            throw new NotImplementedException();
-        }
+            DataLakeDirectoryClient directoryClient = GetDirectoryClient(directoryFullPath);
+            directoryClient.CreateIfNotExists();
+            //var properties = directoryClient.GetProperties().Value;
 
-        public IDirectoryInfo CreateDirectory(string path, DirectorySecurity directorySecurity)
-        {
-            throw new NotImplementedException();
+            //IDirectoryInfo directoryInfo = new AzureDirectoryInfo(_azureBlobAdapter)
+            //{
+            //    LastWriteTime = properties.LastModified.DateTime
+            //    //, Name = properties.
+            //};
+
+            return null;  //class for IDirectoryInfo is not implemented
         }
 
         public void Delete(string path)
         {
-            throw new NotImplementedException();
+            Delete(path, false);
         }
 
         public void Delete(string path, bool recursive)
         {
-            throw new NotImplementedException();
+            DataLakeDirectoryClient directoryClient = GetDirectoryClient(path);
+            directoryClient.Delete(recursive);
         }
 
-        public IEnumerable<string> EnumerateDirectories(string path)
+        //There is no difference between moving and renaming; you should simply call Directory.Move
+        public void Move(string sourceDirName, string destDirName)
         {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateDirectories(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFiles(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFiles(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOption)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFileSystemEntries(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
-        {
-            throw new NotImplementedException();
+            DataLakeDirectoryClient directoryClient = GetDirectoryClient(sourceDirName);
+            var Names = _azureBlobAdapter.ExtractContainerBlobPortions(destDirName);
+            directoryClient.Rename( NormalizeToBlobPath(Names.Item2) );
         }
 
         public bool Exists(string path)
         {
-            throw new NotImplementedException();
+            DataLakeDirectoryClient directoryClient = GetDirectoryClient(path);
+            return directoryClient.Exists();
         }
 
-        public DirectorySecurity GetAccessControl(string path)
+        #region Enumerate and list drives, directories, files. both
+
+        public IEnumerable<string> EnumerateDirectories(string path)
         {
-            throw new NotImplementedException();
+            return EnumerateDirectories(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
         }
 
-        public DirectorySecurity GetAccessControl(string path, AccessControlSections includeSections)
+        public IEnumerable<string> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption)
         {
-            throw new NotImplementedException();
+            return InternalEnumerate(path, searchPattern, searchOption, Directories:true, Files:false);
         }
 
-        public DateTime GetCreationTime(string path)
+        public IEnumerable<string> EnumerateFiles(string path)
         {
-            throw new NotImplementedException();
+            return EnumerateFiles(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
         }
 
-        public DateTime GetCreationTimeUtc(string path)
+        public IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOption)
         {
-            throw new NotImplementedException();
+            return InternalEnumerate(path, searchPattern, searchOption, Directories: false, Files: true);
         }
 
-        public string GetCurrentDirectory()
+        public IEnumerable<string> EnumerateFileSystemEntries(string path)
         {
-            throw new NotImplementedException();
+            return EnumerateFileSystemEntries(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
+        }
+
+        public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
+        {
+            return InternalEnumerate(path, searchPattern, searchOption, Directories: true, Files: true);
         }
 
         public string[] GetDirectories(string path)
         {
-            throw new NotImplementedException();
-        }
-
-        public string[] GetDirectories(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
+            return GetDirectories(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
         }
 
         public string[] GetDirectories(string path, string searchPattern, SearchOption searchOption)
         {
-            throw new NotImplementedException();
-        }
-
-        public string GetDirectoryRoot(string path)
-        {
-            throw new NotImplementedException();
+            return EnumerateDirectories(path, searchPattern, searchOption).ToArray();
         }
 
         public string[] GetFiles(string path)
         {
-            throw new NotImplementedException();
-        }
-
-        public string[] GetFiles(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
+            return GetFiles(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
         }
 
         public string[] GetFiles(string path, string searchPattern, SearchOption searchOption)
         {
-            throw new NotImplementedException();
+            return EnumerateFiles(path, searchPattern, searchOption).ToArray();
         }
 
         public string[] GetFileSystemEntries(string path)
         {
-            throw new NotImplementedException();
-        }
-
-        public string[] GetFileSystemEntries(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DateTime GetLastAccessTime(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DateTime GetLastAccessTimeUtc(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DateTime GetLastWriteTime(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DateTime GetLastWriteTimeUtc(string path)
-        {
-            throw new NotImplementedException();
+            return EnumerateFileSystemEntries(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly).ToArray();
         }
 
         public string[] GetLogicalDrives()
         {
-            throw new NotImplementedException();
+            return _azureBlobAdapter.DriveInfo.GetDrives()
+                .Select(driveInfo => driveInfo.Name).ToArray();
         }
+        #endregion
 
-        public IDirectoryInfo GetParent(string path)
-        {
-            throw new NotImplementedException();
-        }
 
-        public void Move(string sourceDirName, string destDirName)
+        public string GetDirectoryRoot(string path)
         {
-            throw new NotImplementedException();
-        }
-
-        public void SetAccessControl(string path, DirectorySecurity directorySecurity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetCreationTime(string path, DateTime creationTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetCreationTimeUtc(string path, DateTime creationTimeUtc)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetCurrentDirectory(string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetLastAccessTime(string path, DateTime lastAccessTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetLastWriteTime(string path, DateTime lastWriteTime)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
-        {
-            throw new NotImplementedException();
+            return _azureBlobAdapter.Path.GetPathRoot(path); 
         }
     }
 }

@@ -8,6 +8,7 @@
 
     public interface IAzureBlobSettings
     {
+        string StorageAccountName { get; set; }
         string Key { get; set; }
         string ConnectionString { get; set; }
         //string ContainerName { get; set; }
@@ -17,6 +18,7 @@
 
     public class AzureBlobSettings : IAzureBlobSettings
     {
+        public string StorageAccountName { get; set; }
         public string Key { get; set; }
         public string ConnectionString { get; set; }
         //public string ContainerName { get; set; }

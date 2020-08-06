@@ -34,12 +34,23 @@ namespace Azure.BlobAdapter
         public IDriveInfo FromDriveName(string driveName)
         {
             //make the mount points upper for case in sensitive comparison
-            return _azureDrives.First(driveInfo => driveInfo.Name == driveName.ToUpper());
+            //mount points can have both drives and mount points. There is no use case to get drives only
+            //driveInfo.Name.Contains(":") && 
+            return _azureDrives.First(driveInfo =>
+                driveInfo.Name == driveName.ToUpper()
+                );
         }
 
         public IDriveInfo[] GetDrives()
         {
             return _azureDrives.ToArray();
+        }
+
+        public IDriveInfo[] GetDrivesOnly()
+        {
+            return _azureDrives.Where(
+                driveInfo => driveInfo.Name.Contains(":")
+                ).ToArray();
         }
         #endregion
 

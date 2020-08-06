@@ -6,13 +6,14 @@ This is an adapter for the Azure Blob Storage to integrate with the existing .NE
 ## Design Guidelines
 1.  This library implements the interfaces of the [System.IO.Abstractions](https://www.nuget.org/packages/System.IO.Abstractions/) package. The System.IO.Abstractions NuGet package provides a layer of abstraction over the file system that is API-compatible with the existing code. They help to make file access code more unit testable as well.
 
-2. This library uses latest version of [Azure Blob SDK - version 12.x](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/storage?view=azure-dotnet)
-3. Directories are supported via the [Azure Data Lake Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction). It
-Combines the power of a Hadoop compatible file system with integrated hierarchical namespace with the massive scale and economy of Azure Blob Storage to help speed your transition from proof of concept to production.
-4.  The class library is implemented in .NET Standard 2.0. So that it will support both
-  - The most widely used and the legacy .NET Framework and
-  - the latest .NET core applications
-5. Drives and shared folders are implemented via the containers. The drive letters and shared folders can be mounted via mount points via settings.
+1. This library uses the latest version of [Azure Blob SDK - version 12.x](https://docs.microsoft.com/en-us/dotnet/api/overview/azure/storage?view=azure-dotnet)
+1. Directories are supported via the latest version of [Azure Data Lake Storage](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction). It
+Combines the power of a Hadoop compatible file system with integrated hierarchical namespace with the massive scale and economy of Azure Blob Storage to help speed your transition from proof of concept to production. Refer [documentation](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction), [SDK](https://docs.microsoft.com/en-us/dotnet/api/azure.storage.files.datalake?view=azure-dotnet), [Samples](https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet), [source code](https://github.com/Azure/azure-sdk-for-net/tree/master/sdk/storage/Azure.Storage.Files.DataLake).
+
+1. The class library is implemented in .NET Standard 2.0. So that it will support both
+   * The most widely used and the legacy .NET Framework and
+   * the latest .NET core applications
+1. Drives and shared folders are implemented via the containers. The drive letters and shared folders can be mounted via mount points via settings.
 
 
 ## Differences between System.IO and AzureBlobAdapter

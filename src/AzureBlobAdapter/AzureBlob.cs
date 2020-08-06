@@ -23,52 +23,6 @@ namespace Azure.BlobAdapter
 
         protected AzureBlobAdapter _azureBlobAdapter;
 
-        protected Tuple<string, string> ExtractContainerBlobPortions(string blobName)
-        {
-            //https://docs.microsoft.com/en-us/dotnet/api/system.io.path.getpathroot?view=netstandard-2.0
-            // Some times 
-            //  "X:" (Windows: path specified an absolute path on a given drive).
-            //  "\\ComputerName\SharedFolder"(Windows: a UNC path).
-            var containerPortion = _azureBlobAdapter.Path.GetPathRoot(blobName);
-            if (string.IsNullOrEmpty(containerPortion))
-                throw new InvalidDataException("Invalid blob name, mount point not found");
-
-            //_azureBlobAdapter.Path.VolumeSeparatorChar 58 ':'
-            //_azureBlobAdapter.Path.DirectorySeparatorChar 92 '\\'
-            //_azureBlobAdapter.Path.AltDirectorySeparatorChar 47 '/'
-
-            var blobPathStart = blobName.IndexOf(containerPortion) + containerPortion.Length;
-            // GetPathRoot returns with or without  DirectorySeparatorChar for different scenarios. 
-            // So always remove DirectorySeparatorChar from container portion and blob portion.
-            if (containerPortion.EndsWith(_azureBlobAdapter.Path.DirectorySeparatorChar.ToString()))
-            {
-                //remvoe the character and blobPathStart already correct
-                containerPortion = containerPortion.Substring(0, containerPortion.Length - 1);
-            }
-            else
-            {
-                //container portion is correct and exclude the VolumeSeparatorChar from blob portion
-                blobPathStart++;
-            } 
-            var blobPath = blobName.Substring(blobPathStart);
-
-            return new Tuple<string, string>(containerPortion, blobPath);
-            //string[] driveSeparator = { @":\" };
-            //var driveNameParts = blobName.Split(driveSeparator, StringSplitOptions.RemoveEmptyEntries);
-            //if (driveNameParts.Length < 2)
-            //    throw new InvalidDataException("Invalid blob name, mount point not found");
-
-            //return driveNameParts[0];
-        }
-
-        protected string ExtractContainerName(string mountName)
-        {
-            //throws System.InvalidOperationException: No element satisfies the condition in predicate. 
-            //-or- The source sequence is empty.
-            var driveInfo = (AzureDriveInfo)_azureBlobAdapter.DriveInfo.FromDriveName(mountName);
-
-            return driveInfo.ContainerName;
-        }
 
         protected BlobContainerClient GetBlobContainerClient(string containerName)
         {
@@ -86,15 +40,15 @@ namespace Azure.BlobAdapter
 
         public virtual BlobClient GetBlobClient(string blobName)
         {
-            var Names = ExtractContainerBlobPortions(blobName);
-            var containerName = ExtractContainerName(Names.Item1);
+            var Names = _azureBlobAdapter.ExtractContainerBlobPortions(blobName);
+            var containerName = _azureBlobAdapter.ExtractContainerName(Names.Item1);
 
             return GetBlobContainerClient(containerName).GetBlobClient(Names.Item2);
         }
         public virtual AppendBlobClient GetAppendBlobClient(string blobName)
         {
-            var Names = ExtractContainerBlobPortions(blobName);
-            var containerName = ExtractContainerName(Names.Item1);
+            var Names = _azureBlobAdapter.ExtractContainerBlobPortions(blobName);
+            var containerName = _azureBlobAdapter.ExtractContainerName(Names.Item1);
 
             return GetBlobContainerClient(containerName).GetAppendBlobClient(Names.Item2);
         }
@@ -116,8 +70,8 @@ namespace Azure.BlobAdapter
         }
         public virtual void CreateReplaceBlobFromStream(string blobName, Stream data)
         {
-            var Names = ExtractContainerBlobPortions(blobName);
-            var containerName = ExtractContainerName(Names.Item1);
+            var Names = _azureBlobAdapter.ExtractContainerBlobPortions(blobName);
+            var containerName = _azureBlobAdapter.ExtractContainerName(Names.Item1);
             CreateReplaceBlobFromStream(containerName, Names.Item2, data);
         }
         public virtual void CreateReplaceBlobFromLocalFile(BlobContainerClient containerClient, string blobName, string filePath)
@@ -141,8 +95,8 @@ namespace Azure.BlobAdapter
         }
         public virtual Response DownloadFromBlobToStream(string blobName, Stream stream)
         {
-            var Names = ExtractContainerBlobPortions(blobName);
-            var containerName = ExtractContainerName(Names.Item1);
+            var Names = _azureBlobAdapter.ExtractContainerBlobPortions(blobName);
+            var containerName = _azureBlobAdapter.ExtractContainerName(Names.Item1);
 
             return DownloadFromBlobToStream(GetBlobContainerClient(containerName), Names.Item2, stream);
         }
@@ -249,8 +203,8 @@ namespace Azure.BlobAdapter
         public virtual async Task<bool> CopyBlockBlobAsync(string sourceBlobName, string destinationBlobName, 
             bool overwrite =false, bool deleteSource = false)
         {
-            BlobClient sourceBlobClient = null;
-            BlobClient destinationBlobClient = null;
+            BlobClient sourceBlobClient ;
+            BlobClient destinationBlobClient;
 
             try
             {
@@ -315,6 +269,11 @@ namespace Azure.BlobAdapter
                 //    }
                 //}
             }
+        }
+
+        public void Copy(string sourceFileName, string destFileName, bool overwrite)
+        {
+            CopyBlockBlobAsync(sourceFileName, destFileName, overwrite).Wait();
         }
 
         public void Move(string sourceFileName, string destFileName)

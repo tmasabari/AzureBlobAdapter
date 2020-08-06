@@ -198,11 +198,6 @@ namespace Azure.BlobAdapter
             return GetLastModified(path);
         }
 
-        public void Copy(string sourceFileName, string destFileName, bool overwrite)
-        {
-            CopyBlockBlobAsync(sourceFileName, destFileName, overwrite).Wait();
-        }
-
         public void Copy(string sourceFileName, string destFileName)
         {
             Copy(sourceFileName, destFileName, overwrite: false);

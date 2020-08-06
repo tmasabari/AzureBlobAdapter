@@ -21,5 +21,6 @@ jobs:
       run: dotnet restore ./src/StandardStorageLibrary.sln
     - name: Build
       run: dotnet build ./src/StandardStorageLibrary.sln --configuration Release --no-restore
+# running tests require active cloud blob account config on the repository      
 #     - name: Test
 #       run: dotnet test  ./src/StandardStorageLibrary.sln --no-restore --verbosity normal
