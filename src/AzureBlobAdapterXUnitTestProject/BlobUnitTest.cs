@@ -6,6 +6,7 @@ using Azure.BlobAdapter;
 using Microsoft.Extensions.Configuration;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text;
 
 namespace AzureBlobAdapterXUnitTestProject
 {
@@ -58,8 +59,13 @@ namespace AzureBlobAdapterXUnitTestProject
             foreach (var item in lines)
                 modifiedData += item + Environment.NewLine;
 
-            var readData = azureFile.ReadAllText(blobFilename);
-            Assert.Equal(modifiedData, readData);
+            var readDataSB = new StringBuilder();
+            string[] readLines = azureFile.ReadAllLines(blobFilename);
+            foreach (var line in readLines)
+            {
+                readDataSB.Append(line).Append(Environment.NewLine);
+            }
+            Assert.Equal(modifiedData, readDataSB.ToString());
 
             azureFile.Delete(blobFilename);
 

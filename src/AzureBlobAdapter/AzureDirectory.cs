@@ -15,6 +15,7 @@ using System.Linq;
 
 using SearchOption = System.IO.SearchOption;
 using System.Threading;
+using System.Text.RegularExpressions;
 
 namespace Azure.BlobAdapter
 {
@@ -67,11 +68,19 @@ namespace Azure.BlobAdapter
             return blobDirectoryPath;
         }
 
+        public virtual string ConvertWildcardPatternToRegex(string wildCardPattern)
+        {
+            return "^" //beginning of pattern
+                + Regex.Escape(wildCardPattern).
+               //convert * to regex
+               Replace("\\*", ".*").
+               //convert ? to regex $
+               Replace("\\?", ".") 
+               + "$"; //end of pattern
+        }
+
         public virtual IEnumerable<string> InternalEnumerate(string path, string searchPattern, SearchOption searchOption, bool Directories, bool Files)
         {
-            if (!string.IsNullOrEmpty(searchPattern))
-                throw new NotImplementedException();
-
             var Names = _azureBlobAdapter.ExtractContainerBlobPortions(path);
             var rootPath = Names.Item1;
             var fileSystemName = _azureBlobAdapter.ExtractContainerName(rootPath);
@@ -81,7 +90,14 @@ namespace Azure.BlobAdapter
             bool isRecursive = searchOption == SearchOption.AllDirectories;
             var directoryName = NormalizeToBlobPath(Names.Item2);
 
-            IEnumerable<PathItem> names = fileSystemClient.GetPaths(directoryName, isRecursive).ToArray();
+            IEnumerable<PathItem> names = fileSystemClient.GetPaths(directoryName, isRecursive);
+            if (!string.IsNullOrEmpty(searchPattern))
+            {
+                searchPattern = ConvertWildcardPatternToRegex(searchPattern);
+                names = names.Where(pathItem => Regex.Match(
+                    _azureBlobAdapter.Path.GetFileName( pathItem.Name), searchPattern).Success ) ;
+            }
+
             if (Directories && !Files)
                 names = names.Where(pathItem => pathItem.IsDirectory ?? false);
             else if (!Directories && Files)
@@ -139,9 +155,12 @@ namespace Azure.BlobAdapter
 
         public IEnumerable<string> EnumerateDirectories(string path)
         {
-            return EnumerateDirectories(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
+            return EnumerateDirectories(path, searchPattern: null);
         }
-
+        public IEnumerable<string> EnumerateDirectories(string path, string searchPattern)
+        {
+            return EnumerateDirectories(path, searchPattern: searchPattern, searchOption: SearchOption.TopDirectoryOnly);
+        }
         public IEnumerable<string> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption)
         {
             return InternalEnumerate(path, searchPattern, searchOption, Directories:true, Files:false);
@@ -149,9 +168,12 @@ namespace Azure.BlobAdapter
 
         public IEnumerable<string> EnumerateFiles(string path)
         {
-            return EnumerateFiles(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
+            return EnumerateFiles(path, searchPattern: null);
         }
-
+        public IEnumerable<string> EnumerateFiles(string path, string searchPattern)
+        {
+            return EnumerateFiles(path, searchPattern: searchPattern, searchOption: SearchOption.TopDirectoryOnly);
+        }
         public IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOption)
         {
             return InternalEnumerate(path, searchPattern, searchOption, Directories: false, Files: true);
@@ -159,9 +181,12 @@ namespace Azure.BlobAdapter
 
         public IEnumerable<string> EnumerateFileSystemEntries(string path)
         {
-            return EnumerateFileSystemEntries(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
+            return EnumerateFileSystemEntries(path, searchPattern: null);
         }
-
+        public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern)
+        {
+            return EnumerateFileSystemEntries(path, searchPattern: searchPattern, searchOption: SearchOption.TopDirectoryOnly);
+        }
         public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern, SearchOption searchOption)
         {
             return InternalEnumerate(path, searchPattern, searchOption, Directories: true, Files: true);
@@ -169,9 +194,12 @@ namespace Azure.BlobAdapter
 
         public string[] GetDirectories(string path)
         {
-            return GetDirectories(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
+            return GetDirectories(path, searchPattern: null);
         }
-
+        public string[] GetDirectories(string path, string searchPattern)
+        {
+            return GetDirectories(path, searchPattern: searchPattern, searchOption: SearchOption.TopDirectoryOnly);
+        }
         public string[] GetDirectories(string path, string searchPattern, SearchOption searchOption)
         {
             return EnumerateDirectories(path, searchPattern, searchOption).ToArray();
@@ -179,9 +207,12 @@ namespace Azure.BlobAdapter
 
         public string[] GetFiles(string path)
         {
-            return GetFiles(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly);
+            return GetFiles(path, searchPattern: null);
         }
-
+        public string[] GetFiles(string path, string searchPattern)
+        {
+            return GetFiles(path, searchPattern: searchPattern, searchOption: SearchOption.TopDirectoryOnly);
+        }
         public string[] GetFiles(string path, string searchPattern, SearchOption searchOption)
         {
             return EnumerateFiles(path, searchPattern, searchOption).ToArray();
@@ -189,13 +220,18 @@ namespace Azure.BlobAdapter
 
         public string[] GetFileSystemEntries(string path)
         {
-            return EnumerateFileSystemEntries(path, searchPattern: null, searchOption: SearchOption.TopDirectoryOnly).ToArray();
+            return GetFileSystemEntries(path, searchPattern: null);
         }
-
+        public string[] GetFileSystemEntries(string path, string searchPattern)
+        {
+            return EnumerateFileSystemEntries(path, searchPattern: searchPattern, searchOption: SearchOption.TopDirectoryOnly).ToArray();
+        }
+ 
         public string[] GetLogicalDrives()
         {
-            return _azureBlobAdapter.DriveInfo.GetDrives()
-                .Select(driveInfo => driveInfo.Name).ToArray();
+            var azureDriveFactory = (AzureDriveInfoFactory) _azureBlobAdapter.DriveInfo;
+            return azureDriveFactory.GetDrivesOnly()
+                .Select(driveInfo => driveInfo.Name + _azureBlobAdapter.DirectorySeparator ).ToArray();
         }
         #endregion
 

@@ -12,6 +12,7 @@ using Azure.Storage.Files.DataLake;
 using System.Threading.Tasks;
 using Azure.Storage.Files.DataLake.Models;
 using System.Runtime.InteropServices;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Azure.BlobAdapter
 {
@@ -21,7 +22,7 @@ namespace Azure.BlobAdapter
     public partial class AzureDirectory : IDirectory
     {
 
-
+        [ExcludeFromCodeCoverage]
         public IDirectoryInfo GetParent(string path)
         {
             throw new NotImplementedException();
@@ -30,65 +31,34 @@ namespace Azure.BlobAdapter
             //    return null;
             //return new DirectoryInfo(s);
         }
-
+        [ExcludeFromCodeCoverage]
         public string GetCurrentDirectory()
         {
             throw new NotImplementedException();
         }
+        [ExcludeFromCodeCoverage]
         public void SetCurrentDirectory(string path)
         {
             throw new NotImplementedException();
         }
 
-        #region pattern methods
-        public IEnumerable<string> EnumerateDirectories(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFiles(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<string> EnumerateFileSystemEntries(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string[] GetDirectories(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string[] GetFiles(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string[] GetFileSystemEntries(string path, string searchPattern)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
-
         #region DirectorySecurity methods
-
+        [ExcludeFromCodeCoverage]
         public IDirectoryInfo CreateDirectory(string path, DirectorySecurity directorySecurity)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public DirectorySecurity GetAccessControl(string path)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public DirectorySecurity GetAccessControl(string path, AccessControlSections includeSections)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public void SetAccessControl(string path, DirectorySecurity directorySecurity)
         {
             throw new NotImplementedException();
@@ -96,62 +66,62 @@ namespace Azure.BlobAdapter
         #endregion
 
         #region Date Time Operations 
-
+        [ExcludeFromCodeCoverage]
         public DateTime GetCreationTime(string path)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public DateTime GetCreationTimeUtc(string path)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public DateTime GetLastAccessTime(string path)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public DateTime GetLastAccessTimeUtc(string path)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public DateTime GetLastWriteTime(string path)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public DateTime GetLastWriteTimeUtc(string path)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public void SetCreationTime(string path, DateTime creationTime)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public void SetCreationTimeUtc(string path, DateTime creationTimeUtc)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public void SetLastAccessTime(string path, DateTime lastAccessTime)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public void SetLastAccessTimeUtc(string path, DateTime lastAccessTimeUtc)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public void SetLastWriteTime(string path, DateTime lastWriteTime)
         {
             throw new NotImplementedException();
         }
-
+        [ExcludeFromCodeCoverage]
         public void SetLastWriteTimeUtc(string path, DateTime lastWriteTimeUtc)
         {
             throw new NotImplementedException();

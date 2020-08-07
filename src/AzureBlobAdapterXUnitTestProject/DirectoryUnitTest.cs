@@ -53,12 +53,12 @@ namespace AzureBlobAdapterXUnitTestProject
 
 
         [Fact, Order(2)]
-        public void BlobFolderListTest()
+        public void FolderListTest()
         {
             var azureDirectory = azureBlobAdapter.Directory;
 
             // List all directories in the folder
-            var folders = azureDirectory.GetDirectories(blobRootFolderName);
+            var folders = azureDirectory.GetDirectories(blobRootFolderName, "*top", System.IO.SearchOption.AllDirectories);
             Assert.True(folders.Count() > 0);
             foreach (var directoryName in folders)
             {
@@ -66,15 +66,7 @@ namespace AzureBlobAdapterXUnitTestProject
             }
 
             // List all blobs in the folder
-            var files = azureDirectory.GetFiles(blobFolderName);
-            Assert.True(files.Count() > 0);
-            foreach (var fileName in files)
-            {
-                Debug.WriteLine("File Name \t" + fileName);
-            }
-
-            // List all items in the folder
-            var items = azureDirectory.EnumerateFileSystemEntries(blobFolderName);
+            var files = azureDirectory.GetFiles(blobFolderName, "?emp.js??");
             Assert.True(files.Count() > 0);
             foreach (var fileName in files)
             {
@@ -113,6 +105,13 @@ namespace AzureBlobAdapterXUnitTestProject
 
             //clean up so next time unit test will run
             azureDirectory.Delete(@"\\hostname\shared\movedtop", true);
+        }
+
+        [Fact, Order(4)]
+        public void FolderDriveListTest()
+        {
+            var azureDirectory = azureBlobAdapter.Directory;
+            Assert.Equal( 1, azureDirectory.GetLogicalDrives().Length ) ;
         }
     }
 }
