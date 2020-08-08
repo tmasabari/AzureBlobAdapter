@@ -17,9 +17,11 @@ Combines the power of a Hadoop compatible file system with integrated hierarchic
 
 
 ## Differences between System.IO and AzureBlobAdapter
+1. This is a adapter, not an emulator. Meaning IO function calls are redirected to the Blob storage wrappers instead of file systems calls. All the method signatures are 100% compatible with the existing method declarations. 
+1.	As the internal implementation of Azure Blob SDK and System.IO Library are different, parameter validations and the exceptions thrown by blob SDK are different from the file system calls. They have to be addressed by the client applications.
 1. The Azure blob needs to be initialized with the connection strings and to be injected into the application via these interfaces. But the file system can be used directly
 2. Many functionalities of the file systems are not available with the Blob. Example: FileSystemSecurity (audits, access rules, etc).
-3. The advanced features in the Blob storage don't exist in file system calls. So they are not accessible via these interfaces.
+3. The advanced features in the Blob storage don't exist in file system calls. So they have to be accessed via separate interfaces are not accessible via these interfaces.
 
 ## Implemented functionality summary
 1.  Most of the time in the .NET applications, we create/update/deleting/listing files and directories. (CRUD)
@@ -32,7 +34,7 @@ Combines the power of a Hadoop compatible file system with integrated hierarchic
 |IFile|Implemented create, append, read, delete, copy, move, rename operations for both text and binary files.  Except methods for continuous Stream based create/update operations, individual file level encryption/decryption, read/change AccessControl and Attributes|
 |IDriveInfoFactory|100%|
 |IDriveInfo|Name, IsReady|
-|IDirectory|Work In progress|
+|IDirectory|Implemented Create, List/Enumerate, Delete, Copy, Rename and Move directory operations. Except methods for reading/change DirectorySecurity and Attributes|
 
 
 ### Todos
