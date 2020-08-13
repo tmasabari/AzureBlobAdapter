@@ -9,6 +9,10 @@
     public interface IAzureBlobSettings
     {
         string StorageAccountName { get; set; }
+        /// <summary>
+        /// StorageAccountUrl = "https://" + StorageAccountName + ".dfs.core.windows.net";
+        /// </summary>
+        string StorageAccountUrl { get; }
         string Key { get; set; }
         string ConnectionString { get; set; }
         //string ContainerName { get; set; }
@@ -18,6 +22,7 @@
 
     public class AzureBlobSettings : IAzureBlobSettings
     {
+        public string StorageAccountUrl => "https://" + StorageAccountName + ".dfs.core.windows.net";
         public string StorageAccountName { get; set; }
         public string Key { get; set; }
         public string ConnectionString { get; set; }

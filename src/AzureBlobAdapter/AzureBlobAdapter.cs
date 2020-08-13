@@ -31,6 +31,7 @@ namespace Azure.BlobAdapter
         /// </summary>
         public AzureBlobAdapter(IAzureBlobSettings azureBlobSettings)
         {
+            Path = new PathWrapper(this);
 
             AzureBlobSettingsData = azureBlobSettings;
 
@@ -45,23 +46,22 @@ namespace Azure.BlobAdapter
 
             StorageSharedKeyCredential sharedKeyCredential = new StorageSharedKeyCredential(
                 azureBlobSettings.StorageAccountName, azureBlobSettings.Key);
-            string dfsUri = "https://" + azureBlobSettings.StorageAccountName + ".dfs.core.windows.net";
-            DataLakeServiceClientObject = new DataLakeServiceClient(new Uri(dfsUri), sharedKeyCredential);
+            DataLakeServiceClientObject = new DataLakeServiceClient(new Uri(azureBlobSettings.StorageAccountUrl), sharedKeyCredential);
 
-            //this will simply list all the containers and the last modified date time
-            //foreach (var fileSystem in DataLakeServiceClientObject.GetFileSystems())
-            //{
-            //    Debug.WriteLine(fileSystem.Name + " - LastModified:" + fileSystem.Properties.LastModified);
-            //}
-            
+            File = new AzureFile(this);
+            DriveInfo = new AzureDriveInfoFactory(this);
+            Directory = new AzureDirectory(this);
         }
 
-        public IFile File => new AzureFile(this); 
-        public IDriveInfoFactory DriveInfo => new AzureDriveInfoFactory(this);
+        public IFile File { get; }
+        public IDriveInfoFactory DriveInfo { get; }
+        public IPath Path { get; }
+        public IDirectory Directory { get; }
 
-        public IPath Path => new PathWrapper(this);
-
-        public IDirectory Directory => new AzureDirectory(this);  //throw new System.NotImplementedException();  //=> 
+        //public IFile File => new AzureFile(this); 
+        //public IDriveInfoFactory DriveInfo => new AzureDriveInfoFactory(this);
+        //public IPath Path => new PathWrapper(this); 
+        //public IDirectory Directory => new AzureDirectory(this);
 
         #region Helper methods
 

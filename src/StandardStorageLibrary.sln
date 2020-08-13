@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureBlobAdapter", "AzureBl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AzureBlobAdapterXUnitTestProject", "AzureBlobAdapterXUnitTestProject\AzureBlobAdapterXUnitTestProject.csproj", "{9C394B3C-C15E-4215-ABAF-0D2BB210CD1E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureNETFrameworkSample", "AzureNETFrameworkSample\AzureNETFrameworkSample.csproj", "{2A18B55B-7E53-4FE2-A970-B4B0279931C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureBlobNETFramework", "AzureBlobNETFramework\AzureBlobNETFramework.csproj", "{7C6B1A91-2429-4C2A-AC67-D8A23AF541A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{9C394B3C-C15E-4215-ABAF-0D2BB210CD1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C394B3C-C15E-4215-ABAF-0D2BB210CD1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C394B3C-C15E-4215-ABAF-0D2BB210CD1E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A18B55B-7E53-4FE2-A970-B4B0279931C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A18B55B-7E53-4FE2-A970-B4B0279931C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A18B55B-7E53-4FE2-A970-B4B0279931C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A18B55B-7E53-4FE2-A970-B4B0279931C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C6B1A91-2429-4C2A-AC67-D8A23AF541A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C6B1A91-2429-4C2A-AC67-D8A23AF541A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C6B1A91-2429-4C2A-AC67-D8A23AF541A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C6B1A91-2429-4C2A-AC67-D8A23AF541A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

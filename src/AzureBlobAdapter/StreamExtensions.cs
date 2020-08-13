@@ -19,7 +19,6 @@ namespace Azure.BlobAdapter
             }
         }
 
-
         public static String ReadAllText(this Stream stream, Encoding encodingTobeUsedIfNotDetected, bool leaveStreamOpen)
         {
             //Contract.Requires(path != null);
@@ -34,7 +33,6 @@ namespace Azure.BlobAdapter
         {
             return new StreamWriter(stream, encoding, DefaultBufferSize, leaveStreamOpen);
         }
-
 
         // Get encoding is not required Streamreader already has detection implementation
         // refer DetectEncoding method in https://github.com/Microsoft/referencesource/blob/master/mscorlib/system/io/streamreader.cs
