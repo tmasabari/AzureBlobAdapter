@@ -1,0 +1,41 @@
+# This is a basic workflow to help you get started with Actions
+
+name: publish to nuget
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "publish"
+  publish:
+    name: build, pack & publish
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+        source-url: https://nuget.pkg.github.com/<organization>/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}} 
+    - name: Install dependencies
+      run: dotnet restore ./src/StandardStorageLibrary.sln
+    - name: Build solution and generate NuGet package
+      run: dotnet build ./src/StandardStorageLibrary.sln --configuration Release --no-restore
+  # https://stackoverflow.com/questions/57889719/how-to-push-nuget-package-in-github-actions
+    - name: Generate NuGet package
+      run: dotnet pack ./src/AzureBlobAdapter/AzureBlobAdapter.csproj --no-build -c Release -o out
+    - name: Push generated package to GitHub registry
+      run: dotnet nuget push ./out/*.nupkg --skip-duplicate --no-symbols true
