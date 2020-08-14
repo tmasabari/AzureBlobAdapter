@@ -13,6 +13,7 @@
     <Description>This is an adapter for the Azure Blob Storage REST SDK to integrate with the existing .NET System.IO based file system access code with little or no changes.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <RepositoryType>git</RepositoryType>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>

@@ -30,7 +30,6 @@ jobs:
         dotnet-version: 3.1.301
         source-url: https://nuget.pkg.github.com/tmasabari/index.json
       env:
-        SOURCE_URL: https://nuget.pkg.github.com/tmasabari/index.json
         NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}} 
   # https://stackoverflow.com/questions/57889719/how-to-push-nuget-package-in-github-actions
     - name: Generate NuGet package
