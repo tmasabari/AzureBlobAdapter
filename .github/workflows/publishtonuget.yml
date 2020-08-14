@@ -36,6 +36,6 @@ jobs:
     - name: Generate NuGet package
       run: dotnet pack ./src/AzureBlobAdapter/AzureBlobAdapter.csproj -c Release -o out
     - name: Push generated package to GitHub registry
-      run:
+      run: |
         cd out
         dotnet nuget push *.nupkg --skip-duplicate --no-symbols true
