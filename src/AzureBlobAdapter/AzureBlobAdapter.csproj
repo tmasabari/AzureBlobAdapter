@@ -4,6 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>AzureBlobAdapterAssembly</AssemblyName>
     <RootNamespace>Azure.BlobAdapter</RootNamespace>
+    <Authors>Sabarinathan Arthanari</Authors>
+    <Copyright>2020</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/tmasabari/AzureBlobAdapter</PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <PackageTags>azure, azure-storage, blob, blob-storage</PackageTags>
+    <Description>This is an adapter for the Azure Blob Storage REST SDK to integrate with the existing .NET System.IO based file system access code with little or no changes.</Description>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

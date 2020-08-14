@@ -31,9 +31,9 @@ jobs:
       env:
         NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}} 
     - name: Install dependencies
-      run: dotnet restore ./src/StandardStorageLibrary.sln
-    - name: Build solution and generate NuGet package
-      run: dotnet build ./src/StandardStorageLibrary.sln --configuration Release --no-restore
+      run: dotnet restore ./src/AzureBlobAdapter/AzureBlobAdapter.csproj
+    - name: Build
+      run: dotnet build ./src/AzureBlobAdapter/AzureBlobAdapter.csproj --configuration Release --no-restore
   # https://stackoverflow.com/questions/57889719/how-to-push-nuget-package-in-github-actions
     - name: Generate NuGet package
       run: dotnet pack ./src/AzureBlobAdapter/AzureBlobAdapter.csproj --no-build -c Release -o out
