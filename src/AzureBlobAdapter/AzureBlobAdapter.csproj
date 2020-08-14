@@ -8,10 +8,11 @@
     <Copyright>2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/tmasabari/AzureBlobAdapter</PackageProjectUrl>
-    <RepositoryUrl></RepositoryUrl>
+    <RepositoryUrl>https://github.com/tmasabari/AzureBlobAdapter/</RepositoryUrl>
     <PackageTags>azure, azure-storage, blob, blob-storage</PackageTags>
     <Description>This is an adapter for the Azure Blob Storage REST SDK to integrate with the existing .NET System.IO based file system access code with little or no changes.</Description>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
