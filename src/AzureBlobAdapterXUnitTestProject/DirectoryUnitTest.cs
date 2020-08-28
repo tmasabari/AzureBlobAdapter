@@ -15,7 +15,7 @@ namespace AzureBlobAdapterXUnitTestProject
         AzureBlobSettings azureBlobSettings = new AzureBlobSettings();
         const string blobRootFolderName = @"\\hostname\shared\";
         const string blobFolderName = @"\\hostname\shared\sampledirectory\";
-        const string localPermFileName = "TestData/temp.json";
+
         IFileSystem azureBlobAdapter;
 
         public DirectoryUnitTest()
@@ -113,5 +113,19 @@ namespace AzureBlobAdapterXUnitTestProject
             var azureDirectory = azureBlobAdapter.Directory;
             Assert.Equal( 1, azureDirectory.GetLogicalDrives().Length ) ;
         }
+
+
+
+        [Fact, Order(5)]
+        public void FolderUploadTest()
+        {
+            var SourceFolder = @"C:\0SabarinathanA\5TFS\azure code\testfoldercopy";
+            AzureDirectory azureDirectory = (AzureDirectory) azureBlobAdapter.Directory;
+            var fullFSList = System.IO.Directory.EnumerateFileSystemEntries(SourceFolder, "*.*", System.IO.SearchOption.AllDirectories);
+            azureDirectory.UploadLocalFolder(SourceFolder, "c:\\TestData");
+            var fullAzureList = azureDirectory.EnumerateFileSystemEntries("c:\\TestData", null, System.IO.SearchOption.AllDirectories).ToList();
+            Assert.Equal(fullFSList.Count(), fullAzureList.Count());
+        }
+
     }
 }

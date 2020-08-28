@@ -1,7 +1,8 @@
 ﻿using System.IO;
+using AzureNETFramework.IO;
 namespace AzureNETFrameworkSample
 {
-    class Program : CommonBaseClass //even if you do not extend from the CommonBaseClass, this code will execute normally
+    class Program : CommonIOBaseClass //even if you do not extend from the CommonBaseClass, this code will execute normally
     {
         string AzureSample()
         {

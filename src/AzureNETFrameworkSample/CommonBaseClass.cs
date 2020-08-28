@@ -3,9 +3,9 @@ using AzureBlobNETFramework;
 using System.IO.Abstractions;
 using System.Configuration;
 
-namespace AzureNETFrameworkSample
+namespace AzureNETFramework.IO
 {
-    public class CommonBaseClass
+    public class CommonIOBaseClass
     {
         private IFileSystem fileSystem ;
         public IFile File;
@@ -13,7 +13,7 @@ namespace AzureNETFrameworkSample
         public IPath Path;
         public IDriveInfoFactory DriveInfo;
 
-        public CommonBaseClass()
+        public CommonIOBaseClass()
         {
             fileSystem = FileSystemProxy.GetFileSystem(
                         ConfigurationManager.AppSettings["FileSystemType"] == "AzureBlob" ? FileSystemTypes.AzureBlob : FileSystemTypes.SystemIO,

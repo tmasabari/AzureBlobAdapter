@@ -79,7 +79,8 @@ namespace Azure.BlobAdapter
                + "$"; //end of pattern
         }
 
-        public virtual IEnumerable<string> InternalEnumerate(string path, string searchPattern, SearchOption searchOption, bool Directories, bool Files)
+        public virtual IEnumerable<string> InternalEnumerate(string path, string searchPattern, 
+            SearchOption searchOption, bool Directories, bool Files)
         {
             var Names = _azureBlobAdapter.ExtractContainerBlobPortions(path);
             var rootPath = Names.Item1;
@@ -239,6 +240,33 @@ namespace Azure.BlobAdapter
         public string GetDirectoryRoot(string path)
         {
             return _azureBlobAdapter.Path.GetPathRoot(path); 
+        }
+
+        public void UploadLocalFolder(string localFolderPath, string AzureFolderPath)
+        {
+            //if target directory not exists create it
+            if (!this.Exists(AzureFolderPath))
+                this.CreateDirectory(AzureFolderPath);
+
+            // Copy each file into the new directory.
+            var filePaths = System.IO.Directory.EnumerateFiles(localFolderPath);
+            foreach (var filePath in filePaths)
+            {
+                string filenameWithExt = new System.IO.FileInfo(filePath).Name;
+                // filenameWithExt = filePath.Replace(localFolderPath, "");
+                string azurePath = this.FileSystem.Path.Combine(AzureFolderPath, filenameWithExt);
+                Debug.WriteLine(@"Copying {0} to azure {1}", filePath, azurePath);
+                AzureFile azureFile = (AzureFile)this.FileSystem.File;
+                azureFile.UploadToBlob(filePath, azurePath, isOverWrite: true);
+            }
+            // Copy each subdirectory using recursion.
+            var subFolderPaths = System.IO.Directory.EnumerateDirectories(localFolderPath);
+            foreach ( var subFolderPath in subFolderPaths )
+            {
+                string folderNameOnly = new System.IO.DirectoryInfo(subFolderPath).Name; //subFolderPath.Replace(localFolderPath, "");
+                string azureSubFolderPath = this.FileSystem.Path.Combine(AzureFolderPath, folderNameOnly);
+                UploadLocalFolder(subFolderPath, azureSubFolderPath);
+            }
         }
     }
 }

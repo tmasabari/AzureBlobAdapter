@@ -101,14 +101,24 @@ namespace Azure.BlobAdapter
             return DownloadFromBlobToStream(GetBlobContainerClient(containerName), Names.Item2, stream);
         }
 
-        public virtual Response DownloadFromBlobToLocalFile(BlobContainerClient containerClient, string blobName, string localFilePah)
+        public virtual Response DownloadFromBlobToLocalFile(string blobName, string localFilePath)
         {
             Debug.WriteLine("Downloading from Blob storage as blob:\n\t {0}\n", blobName);
-            var blobClient = containerClient.GetBlobClient(blobName);
+            var sourceBlobClient = GetBlobClient(blobName);
             // Download the blob's contents and save it to a file
-            Response download = blobClient.DownloadTo(localFilePah);
+            Response download = sourceBlobClient.DownloadTo(localFilePath);
             return download;
+        } 
+
+        public virtual Response<BlobContentInfo> UploadToBlob( string localFilePath, string blobName, bool isOverWrite = true )
+        {
+            // Get a blob from the container to use as the source.
+            Debug.WriteLine("Uploading to Blob storage as blob:\n\t {0}\n", localFilePath);
+            var destinationBlobClient = GetBlobClient(blobName);
+            var uploadResponse = destinationBlobClient.Upload(localFilePath, overwrite:isOverWrite); 
+            return uploadResponse;
         }
+
 
         protected virtual void InternalWriteAllText(Stream stream, String contents, Encoding encoding, bool leaveStreamOpen)
         {

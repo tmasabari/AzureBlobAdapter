@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO.Abstractions;
-using Azure.BlobAdapter;
 
 namespace Azure.BlobAdapter
 {
@@ -8,8 +7,6 @@ namespace Azure.BlobAdapter
 
     public static class FileSystemProxy
     {
-        //public readonly IFileSystem FileSystem;
-
         public static IFileSystem GetFileSystem(FileSystemTypes fileSystemType, AzureBlobSettings azureBlobSettings = null)
         {
             IFileSystem FileSystem;
