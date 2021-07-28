@@ -1,18 +1,8 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using System.Diagnostics;
-
+﻿
 using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Security.AccessControl;
-using System.Text;
-using Azure.Storage.Files.DataLake;
-using System.Threading.Tasks;
-using Azure.Storage.Files.DataLake.Models;
-using System.Runtime.InteropServices;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Azure.BlobAdapter
 {

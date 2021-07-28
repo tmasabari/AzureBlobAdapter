@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Text;
+﻿using System.IO.Abstractions;
 
 namespace Azure.BlobAdapter
 {
@@ -13,7 +10,7 @@ namespace Azure.BlobAdapter
             var azureDirectory = fileSystem.Directory;
             var azureFile = fileSystem.File;
 
-            if ( !sourcePath.EndsWith(fileSystem.Path.DirectorySeparatorChar.ToString()) )
+            if (!sourcePath.EndsWith(fileSystem.Path.DirectorySeparatorChar.ToString()))
             {
                 sourcePath += fileSystem.Path.DirectorySeparatorChar.ToString();
             }

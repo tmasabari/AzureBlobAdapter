@@ -1,20 +1,18 @@
-using System;
-using Xunit;
-using Xunit.Extensions.Ordering;
-
 using Azure.BlobAdapter;
 using Microsoft.Extensions.Configuration;
-using System.IO.Abstractions;
+using System;
 using System.Linq;
 using System.Text;
+using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace AzureBlobAdapterXUnitTestProject
 {
     public class BlobUnitTest
     {
-        AzureBlobSettings azureBlobSettings = new AzureBlobSettings();
-        const string blobFileName = @"\\hostname\shared\sampledirectory\temp.json";
-        const string localPermFileName = "TestData/temp.json";
+        private readonly AzureBlobSettings azureBlobSettings = new AzureBlobSettings();
+        private const string blobFileName = @"\\hostname\shared\sampledirectory\temp.json";
+        private const string localPermFileName = "TestData/temp.json";
 
         public BlobUnitTest()
         {
@@ -26,14 +24,14 @@ namespace AzureBlobAdapterXUnitTestProject
               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
               //.AddEnvironmentVariables() //.AddCommandLine(args)
               .Build();
-            Configuration.Bind("AzureBlobSettings", azureBlobSettings); 
+            Configuration.Bind("AzureBlobSettings", azureBlobSettings);
         }
 
         [Fact]
         public void BlobAdapterTest()
         {
             AzureBlobAdapter azureBlobAdapter = new AzureBlobAdapter(azureBlobSettings);
-            Assert.True( ! string.IsNullOrEmpty( azureBlobAdapter.BlobServicePropertiesObject.Logging.Version) );
+            Assert.True(!string.IsNullOrEmpty(azureBlobAdapter.BlobServicePropertiesObject.Logging.Version));
         }
 
         //// List all blobs in the container
@@ -124,8 +122,6 @@ namespace AzureBlobAdapterXUnitTestProject
             var azureFile = azureBlobAdapter.File;
             var actualData = azureFile.GetLastWriteTime(blobFileName);
 
-            var expectedData = DateTime.Parse("31-07-2020 10:34:59");
-
             Assert.Equal(actualData, actualData);
         }
 
@@ -137,14 +133,14 @@ namespace AzureBlobAdapterXUnitTestProject
             var localContent = System.IO.File.ReadAllText(localPermFileName);
 
             var copiedBlobFilename = @"\\hostname\shared\newtop\newsub\copied.json";
-            azureFile.Copy( blobFileName, copiedBlobFilename, true );
+            azureFile.Copy(blobFileName, copiedBlobFilename, true);
             var copiedData = azureFile.ReadAllText(copiedBlobFilename);
             Assert.Equal(localContent, copiedData);
 
             var movedBlobFilename = @"\\hostname\shared\movedtop\movedsub\moved.json";
-            azureFile.Move( copiedBlobFilename, movedBlobFilename );
+            azureFile.Move(copiedBlobFilename, movedBlobFilename);
             var movedData = azureFile.ReadAllText(movedBlobFilename);
-            Assert.Equal(localContent, movedData); 
+            Assert.Equal(localContent, movedData);
 
             var ExistsResult = azureFile.Exists(copiedBlobFilename);
             Assert.False(ExistsResult);

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Azure.BlobAdapter;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
-using Azure.BlobAdapter;
 
 namespace AzureBlobNETFramework
 {
@@ -41,19 +41,22 @@ namespace AzureBlobNETFramework
             }
             var azureBlobConfiguration = (section as AzureBlobConfiguration);
 
-            var azureBlobSettings = new AzureBlobSettings();
-            azureBlobSettings.Key = azureBlobConfiguration.Key;
-            azureBlobSettings.ConnectionString = azureBlobConfiguration.ConnectionString;
-            azureBlobSettings.StorageAccountName = azureBlobConfiguration.StorageAccountName;
+            var azureBlobSettings = new AzureBlobSettings
+            {
+                Key = azureBlobConfiguration.Key,
+                ConnectionString = azureBlobConfiguration.ConnectionString,
+                StorageAccountName = azureBlobConfiguration.StorageAccountName
+            };
             List<AzureMountPointsSetting> azureMountPoints = new List<AzureMountPointsSetting>();
             foreach (MountPointElement item in azureBlobConfiguration.MountPoints)
             {
                 azureMountPoints.Add(new AzureMountPointsSetting()
                 {
-                    Name = item.Name, ContainerName=item.ContainerName
+                    Name = item.Name,
+                    ContainerName = item.ContainerName
                 });
             }
-            azureBlobSettings.MountPoints = azureMountPoints.ToArray(); 
+            azureBlobSettings.MountPoints = azureMountPoints.ToArray();
             return azureBlobSettings;
         }
     }

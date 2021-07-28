@@ -1,13 +1,13 @@
 ﻿using Azure.BlobAdapter;
 using AzureBlobNETFramework;
-using System.IO.Abstractions;
 using System.Configuration;
+using System.IO.Abstractions;
 
 namespace AzureNETFramework.IO
 {
     public class CommonIOBaseClass
     {
-        private IFileSystem fileSystem ;
+        private readonly IFileSystem fileSystem;
         public IFile File;
         public IDirectory Directory;
         public IPath Path;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -14,8 +13,7 @@ namespace Azure.BlobAdapter
         {
             get
             {
-                UTF8Encoding noBOM = new UTF8Encoding(false, true);
-                return noBOM;
+                return new UTF8Encoding(false, true);
             }
         }
 

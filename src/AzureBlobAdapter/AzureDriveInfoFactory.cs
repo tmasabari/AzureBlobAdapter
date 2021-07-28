@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Azure.BlobAdapter
@@ -19,8 +18,8 @@ namespace Azure.BlobAdapter
             foreach (var driveSetting in azureBlobAdapter.AzureBlobSettingsData.MountPoints)
             {
                 //make the mount points upper for case in sensitive comparison
-                _azureDrives.Add(new AzureDriveInfo(azureBlobAdapter) 
-                    { ContainerName = driveSetting.ContainerName, Name = driveSetting.Name });
+                _azureDrives.Add(new AzureDriveInfo(azureBlobAdapter)
+                { ContainerName = driveSetting.ContainerName, Name = driveSetting.Name });
             }
         }
 
@@ -30,8 +29,8 @@ namespace Azure.BlobAdapter
             //make the mount points upper for case in sensitive comparison
             //mount points can have both drives and mount points. There is no use case to get drives only
             //driveInfo.Name.Contains(":") && 
-            return _azureDrives.First(driveInfo => 
-                driveInfo.Name.Equals(driveName, StringComparison.OrdinalIgnoreCase) 
+            return _azureDrives.First(driveInfo =>
+                driveInfo.Name.Equals(driveName, StringComparison.OrdinalIgnoreCase)
                 );
         }
 
@@ -43,10 +42,11 @@ namespace Azure.BlobAdapter
         public IDriveInfo[] GetDrivesOnly()
         {
             return _azureDrives.Where(
-                driveInfo => {
+                driveInfo =>
+                {
                     var match = Regex.Match(driveInfo.Name, "^([A-Z|a-z][:])");
                     return match.Success;
-                    }
+                }
                 ).ToArray();
         }
         #endregion

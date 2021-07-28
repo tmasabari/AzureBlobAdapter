@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
-
+using System;
+using System.Diagnostics;
+using System.Text;
+using System.Threading.Tasks;
 using Stream = System.IO.Stream;
 using StreamWriter = System.IO.StreamWriter;
-
-using System.Threading.Tasks;
-using System.Linq;
-using System.ComponentModel;
-using System.IO;
 
 namespace Azure.BlobAdapter
 {
@@ -108,14 +101,14 @@ namespace Azure.BlobAdapter
             // Download the blob's contents and save it to a file
             Response download = sourceBlobClient.DownloadTo(localFilePath);
             return download;
-        } 
+        }
 
-        public virtual Response<BlobContentInfo> UploadToBlob( string localFilePath, string blobName, bool isOverWrite = true )
+        public virtual Response<BlobContentInfo> UploadToBlob(string localFilePath, string blobName, bool isOverWrite = true)
         {
             // Get a blob from the container to use as the source.
             Debug.WriteLine("Uploading to Blob storage as blob:\n\t {0}\n", localFilePath);
             var destinationBlobClient = GetBlobClient(blobName);
-            var uploadResponse = destinationBlobClient.Upload(localFilePath, overwrite:isOverWrite); 
+            var uploadResponse = destinationBlobClient.Upload(localFilePath, overwrite: isOverWrite);
             return uploadResponse;
         }
 
@@ -126,7 +119,7 @@ namespace Azure.BlobAdapter
             //Contract.Requires(encoding != null);
             //Contract.Requires(path.Length > 0);
 
-            using (StreamWriter sw = stream.GetStreamWriter( encoding, leaveStreamOpen))
+            using (StreamWriter sw = stream.GetStreamWriter(encoding, leaveStreamOpen))
                 sw.Write(contents);
         }
         #endregion
@@ -188,7 +181,7 @@ namespace Azure.BlobAdapter
 
         #region "Blob Specific Implementation"
 
-        public virtual bool CancelCopy(string destBlobName,string copyId)
+        public virtual bool CancelCopy(string destBlobName, string copyId)
         {
             // Fetch the destination blob's properties before checking the copy state.
             BlobClient destinationBlobClient = GetBlobClient(destBlobName);
@@ -210,10 +203,10 @@ namespace Azure.BlobAdapter
         /// <param name="sourceBlobName"></param>
         /// <param name="destinationBlobName"></param>
         /// <returns></returns>
-        public virtual async Task<bool> CopyBlockBlobAsync(string sourceBlobName, string destinationBlobName, 
-            bool overwrite =false, bool deleteSource = false)
+        public virtual async Task<bool> CopyBlockBlobAsync(string sourceBlobName, string destinationBlobName,
+            bool overwrite = false, bool deleteSource = false)
         {
-            BlobClient sourceBlobClient ;
+            BlobClient sourceBlobClient;
             BlobClient destinationBlobClient;
 
             try
@@ -223,7 +216,7 @@ namespace Azure.BlobAdapter
                 // Ensure that the source blob exists.
                 if (!await sourceBlobClient.ExistsAsync())
                 {
-                    throw new InvalidOperationException("Source blob name " + sourceBlobName + " not found" );
+                    throw new InvalidOperationException("Source blob name " + sourceBlobName + " not found");
                 }
 
                 // Get a reference to a destination blob (in this case, a new blob).
@@ -242,7 +235,7 @@ namespace Azure.BlobAdapter
 
 
                 // Get the ID of the copy operation.
-                destinationBlobClient.StartCopyFromUri( sourceBlobClient.Uri );  //var copyOperation = 
+                destinationBlobClient.StartCopyFromUri(sourceBlobClient.Uri);  //var copyOperation = 
 
                 // Fetch the destination blob's properties before checking the copy state.
                 BlobProperties destinationBlobProperties = destinationBlobClient.GetProperties().Value;
@@ -253,7 +246,7 @@ namespace Azure.BlobAdapter
                 if (destinationBlobProperties.CopyStatus != CopyStatus.Success)
                     throw new Exception("Copy failed: " + destinationBlobProperties.CopyStatus);
 
-                Debug.WriteLine("Completion time: {0}", destinationBlobProperties.CopyCompletedOn.DateTime );
+                Debug.WriteLine("Completion time: {0}", destinationBlobProperties.CopyCompletedOn.DateTime);
                 //Debug.WriteLine("Bytes copied: {0}", copyOperation.Value ); // throws exception copyOperation.Status is not giving correct status
                 //"Total bytes: {0}" not available
 
@@ -293,7 +286,7 @@ namespace Azure.BlobAdapter
 
         public virtual async Task<bool> RenameAsync(string sourceBlobName, string destinationBlobName)
         {
-            return await CopyBlockBlobAsync( sourceBlobName, destinationBlobName, overwrite: false, deleteSource: true);
+            return await CopyBlockBlobAsync(sourceBlobName, destinationBlobName, overwrite: false, deleteSource: true);
         }
 
         #endregion

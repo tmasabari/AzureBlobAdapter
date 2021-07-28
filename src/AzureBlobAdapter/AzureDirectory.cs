@@ -1,21 +1,11 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using System.Diagnostics;
-
-using System;
-using System.Collections.Generic;
-using System.IO.Abstractions;
-using System.Security.AccessControl;
-using System.Text;
-using Azure.Storage.Files.DataLake;
-using System.Threading.Tasks;
+﻿using Azure.Storage.Files.DataLake;
 using Azure.Storage.Files.DataLake.Models;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Linq;
-
-using SearchOption = System.IO.SearchOption;
-using System.Threading;
 using System.Text.RegularExpressions;
+using SearchOption = System.IO.SearchOption;
 
 namespace Azure.BlobAdapter
 {
@@ -24,7 +14,7 @@ namespace Azure.BlobAdapter
     /// </summary>
     public partial class AzureDirectory : IDirectory
     {
-        readonly AzureBlobAdapter _azureBlobAdapter;
+        private readonly AzureBlobAdapter _azureBlobAdapter;
 
         public IFileSystem FileSystem
         {
@@ -75,11 +65,11 @@ namespace Azure.BlobAdapter
                //convert * to regex
                Replace("\\*", ".*").
                //convert ? to regex $
-               Replace("\\?", ".") 
+               Replace("\\?", ".")
                + "$"; //end of pattern
         }
 
-        public virtual IEnumerable<string> InternalEnumerate(string path, string searchPattern, 
+        public virtual IEnumerable<string> InternalEnumerate(string path, string searchPattern,
             SearchOption searchOption, bool Directories, bool Files)
         {
             var Names = _azureBlobAdapter.ExtractContainerBlobPortions(path);
@@ -96,7 +86,7 @@ namespace Azure.BlobAdapter
             {
                 searchPattern = ConvertWildcardPatternToRegex(searchPattern);
                 names = names.Where(pathItem => Regex.Match(
-                    _azureBlobAdapter.Path.GetFileName( pathItem.Name), searchPattern).Success ) ;
+                    _azureBlobAdapter.Path.GetFileName(pathItem.Name), searchPattern).Success);
             }
 
             if (Directories && !Files)
@@ -143,7 +133,7 @@ namespace Azure.BlobAdapter
         {
             DataLakeDirectoryClient directoryClient = GetDirectoryClient(sourceDirName);
             var Names = _azureBlobAdapter.ExtractContainerBlobPortions(destDirName);
-            directoryClient.Rename( NormalizeToBlobPath(Names.Item2) );
+            directoryClient.Rename(NormalizeToBlobPath(Names.Item2));
         }
 
         public bool Exists(string path)
@@ -164,7 +154,7 @@ namespace Azure.BlobAdapter
         }
         public IEnumerable<string> EnumerateDirectories(string path, string searchPattern, SearchOption searchOption)
         {
-            return InternalEnumerate(path, searchPattern, searchOption, Directories:true, Files:false);
+            return InternalEnumerate(path, searchPattern, searchOption, Directories: true, Files: false);
         }
 
         public IEnumerable<string> EnumerateFiles(string path)
@@ -227,19 +217,19 @@ namespace Azure.BlobAdapter
         {
             return EnumerateFileSystemEntries(path, searchPattern: searchPattern, searchOption: SearchOption.TopDirectoryOnly).ToArray();
         }
- 
+
         public string[] GetLogicalDrives()
         {
-            var azureDriveFactory = (AzureDriveInfoFactory) _azureBlobAdapter.DriveInfo;
+            var azureDriveFactory = (AzureDriveInfoFactory)_azureBlobAdapter.DriveInfo;
             return azureDriveFactory.GetDrivesOnly()
-                .Select(driveInfo => driveInfo.Name + _azureBlobAdapter.DirectorySeparator ).ToArray();
+                .Select(driveInfo => driveInfo.Name + _azureBlobAdapter.DirectorySeparator).ToArray();
         }
         #endregion
 
 
         public string GetDirectoryRoot(string path)
         {
-            return _azureBlobAdapter.Path.GetPathRoot(path); 
+            return _azureBlobAdapter.Path.GetPathRoot(path);
         }
 
         public void UploadLocalFolder(string localFolderPath, string AzureFolderPath)
@@ -261,7 +251,7 @@ namespace Azure.BlobAdapter
             }
             // Copy each subdirectory using recursion.
             var subFolderPaths = System.IO.Directory.EnumerateDirectories(localFolderPath);
-            foreach ( var subFolderPath in subFolderPaths )
+            foreach (var subFolderPath in subFolderPaths)
             {
                 string folderNameOnly = new System.IO.DirectoryInfo(subFolderPath).Name; //subFolderPath.Replace(localFolderPath, "");
                 string azureSubFolderPath = this.FileSystem.Path.Combine(AzureFolderPath, folderNameOnly);

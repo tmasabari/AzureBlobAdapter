@@ -1,11 +1,10 @@
-﻿using System.Diagnostics;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
-using System.Text;
 using System.Linq;
+using System.Text;
 
 namespace Azure.BlobAdapter
 {
@@ -66,18 +65,20 @@ namespace Azure.BlobAdapter
         /// <returns></returns>
         public StreamReader OpenText(string path)
         {
-            var stream = OpenRead(path);
-            //this is inline with reference .net implementation call default constructor of streamreader
-            //https://docs.microsoft.com/en-us/dotnet/api/system.io.streamreader.-ctor?view=netframework-4.8#System_IO_StreamReader__ctor_System_IO_Stream_
-            var reader = new StreamReader(stream);
-            return reader;
+            using (var stream = OpenRead(path))
+            {
+                //this is inline with reference .net implementation call default constructor of streamreader
+                //https://docs.microsoft.com/en-us/dotnet/api/system.io.streamreader.-ctor?view=netframework-4.8#System_IO_StreamReader__ctor_System_IO_Stream_
+                var reader = new StreamReader(stream);
+                return reader;
+            }
         }
 
         public string ReadAllText(string path, Encoding encoding)
         {
             using (var stream = OpenRead(path))
             {
-                return stream.ReadAllText( encodingTobeUsedIfNotDetected: encoding, leaveStreamOpen: true);
+                return stream.ReadAllText(encodingTobeUsedIfNotDetected: encoding, leaveStreamOpen: true);
             } //this will close the stream
         }
 
@@ -122,7 +123,7 @@ namespace Azure.BlobAdapter
         {
             using (var stream = OpenRead(path))
             {
-                using (var reader = stream.GetStreamReader( encodingTobeUsedIfNotDetected: encoding, leaveStreamOpen:true) )
+                using (var reader = stream.GetStreamReader(encodingTobeUsedIfNotDetected: encoding, leaveStreamOpen: true))
                 {
                     while (!reader.EndOfStream)
                     {
@@ -153,7 +154,7 @@ namespace Azure.BlobAdapter
 
         public void WriteAllLines(string path, IEnumerable<string> contents, Encoding encoding)
         {
-            WriteAllText(path, GetStringFromIEnumerable(contents) , encoding);
+            WriteAllText(path, GetStringFromIEnumerable(contents), encoding);
         }
 
         public void WriteAllLines(string path, string[] contents)

@@ -1,22 +1,19 @@
-using System;
-using Xunit;
-using Xunit.Extensions.Ordering;
-
 using Azure.BlobAdapter;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Diagnostics;
+using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace AzureBlobAdapterXUnitTestProject
 {
     public class DirectoryUnitTest
     {
-        AzureBlobSettings azureBlobSettings = new AzureBlobSettings();
-        const string blobRootFolderName = @"\\hostname\shared\";
-        const string blobFolderName = @"\\hostname\shared\sampledirectory\";
-
-        IFileSystem azureBlobAdapter;
+        private readonly AzureBlobSettings azureBlobSettings = new AzureBlobSettings();
+        private const string blobRootFolderName = @"\\hostname\shared\";
+        private const string blobFolderName = @"\\hostname\shared\sampledirectory\";
+        private readonly IFileSystem azureBlobAdapter;
 
         public DirectoryUnitTest()
         {
@@ -34,7 +31,7 @@ namespace AzureBlobAdapterXUnitTestProject
         {
             //https://stackoverflow.com/questions/5748032/why-does-path-combine-produce-this-result-with-a-relative-path
             //  trim the slash off if you want to guarantee that relativePath will be treated as relative. remove leading slash of \new folder
-            var newFolderName = azureBlobAdapter.Path.Combine(  blobRootFolderName , @"new folder\subfolder\leaf" );
+            var newFolderName = azureBlobAdapter.Path.Combine(blobRootFolderName, @"new folder\subfolder\leaf");
             var azureDirectory = azureBlobAdapter.Directory;
 
             azureDirectory.CreateDirectory(newFolderName);
@@ -46,7 +43,7 @@ namespace AzureBlobAdapterXUnitTestProject
             Assert.False(leafExistsResult);
 
             var deleteRoot = azureBlobAdapter.Path.Combine(blobRootFolderName, @"new folder");
-            azureDirectory.Delete(deleteRoot, recursive:true);
+            azureDirectory.Delete(deleteRoot, recursive: true);
             var rootExistsResult = azureDirectory.Exists(deleteRoot);
             Assert.False(rootExistsResult);
         }
@@ -83,8 +80,8 @@ namespace AzureBlobAdapterXUnitTestProject
             //this tests both azureDirectory.GetFiles(blobFolderName)  azureDirectory.EnumerateFileSystemEntries(blobFolderName)
             FileFolderExtensions.CopyDirectory(azureBlobAdapter, blobFolderName, newFolderName);
 
-            var  olditems = azureDirectory.EnumerateFileSystemEntries(blobFolderName, null, System.IO.SearchOption.AllDirectories);
-            var  newitems = azureDirectory.EnumerateFileSystemEntries(newFolderName, null, System.IO.SearchOption.AllDirectories);
+            var olditems = azureDirectory.EnumerateFileSystemEntries(blobFolderName, null, System.IO.SearchOption.AllDirectories);
+            var newitems = azureDirectory.EnumerateFileSystemEntries(newFolderName, null, System.IO.SearchOption.AllDirectories);
             foreach (var fileName in newitems)
             {
                 Debug.WriteLine("File Name \t" + fileName);
@@ -98,7 +95,7 @@ namespace AzureBlobAdapterXUnitTestProject
             azureDirectory.CreateDirectory(movedRootFolderName);
             azureDirectory.Move(sourceRootFolderName, movedRootFolderName);
 
-            var ExistsResult = azureDirectory.Exists( sourceRootFolderName );
+            var ExistsResult = azureDirectory.Exists(sourceRootFolderName);
             Assert.False(ExistsResult);
             var ExistsResultTrue = azureDirectory.Exists(@"\\hostname\shared\movedtop\movedsub\moved\subfolder\leaf");
             Assert.True(ExistsResultTrue);
@@ -111,7 +108,7 @@ namespace AzureBlobAdapterXUnitTestProject
         public void FolderDriveListTest()
         {
             var azureDirectory = azureBlobAdapter.Directory;
-            Assert.Equal( 1, azureDirectory.GetLogicalDrives().Length ) ;
+            Assert.Equal(1, azureDirectory.GetLogicalDrives().Length);
         }
 
 
@@ -120,7 +117,7 @@ namespace AzureBlobAdapterXUnitTestProject
         public void FolderUploadTest()
         {
             var SourceFolder = @"C:\0SabarinathanA\5TFS\azure code\testfoldercopy";
-            AzureDirectory azureDirectory = (AzureDirectory) azureBlobAdapter.Directory;
+            AzureDirectory azureDirectory = (AzureDirectory)azureBlobAdapter.Directory;
             var fullFSList = System.IO.Directory.EnumerateFileSystemEntries(SourceFolder, "*.*", System.IO.SearchOption.AllDirectories);
             azureDirectory.UploadLocalFolder(SourceFolder, "c:\\TestData");
             var fullAzureList = azureDirectory.EnumerateFileSystemEntries("c:\\TestData", null, System.IO.SearchOption.AllDirectories).ToList();

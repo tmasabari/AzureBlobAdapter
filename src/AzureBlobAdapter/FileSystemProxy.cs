@@ -15,7 +15,7 @@ namespace Azure.BlobAdapter
                 FileSystem = new FileSystem();
                 return FileSystem;
             }
-            if(azureBlobSettings == null)
+            if (azureBlobSettings == null)
             {
                 throw new InvalidOperationException("Azure Blob Settings is required to initialize the Azure");
             }
